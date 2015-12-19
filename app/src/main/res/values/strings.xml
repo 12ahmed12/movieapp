@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">MovieApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="item_text">Details</string>
+    <string name="title_activity_detailed">DetailedActivity</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_share">Share</string>
+    <string name="title_activity_setting">SettingActivity</string>
+
+    <string name="pref_sort_key" translatable="false">sort_by</string>
+
+
+    <string name="pref_sort_label">Show With </string>
+    <!-- Label for metric option in temperature unit preference [CHAR LIMIT=25] -->
+    <string name="pref_sort_label_avarege">average</string>
+
+    <!-- Label for imperial option in temperature unit preference [CHAR LIMIT=25] -->
+    <string name="pref_sort_label_playing">Now playing</string>
+
+    <!-- Label for imperial option in temperature unit preference [CHAR LIMIT=25] -->
+    <string name="pref_sort_label_popularity">Popularity</string>
+
+    <!-- Value in SharedPreferences for metric temperature unit option [CHAR LIMIT=NONE] -->
+    <string name="pref_sort_avarege" translatable="false">vote_average.desc</string>
+
+    <!-- Value in SharedPreferences for imperial temperature unit option [CHAR LIMIT=NONE] -->
+    <string name="pref_sort_playing" translatable="false">now_playing</string>
+
+    <!-- Value in SharedPreferences for imperial temperature unit option [CHAR LIMIT=NONE] -->
+    <string name="pref_sort_popularity" translatable="false">popularity.desc</string>
+
+
+</resources>
