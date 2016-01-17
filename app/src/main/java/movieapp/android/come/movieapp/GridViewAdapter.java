@@ -19,7 +19,7 @@ public class GridViewAdapter extends ArrayAdapter<GridItem> {
     //private final ColorMatrixColorFilter grayscaleFilter;
     private Context mContext;
     private int layoutResourceId;
-    private ArrayList<GridItem> mGridData = new ArrayList<GridItem>();
+    private ArrayList<GridItem> mGridData = new ArrayList<>();
 
     public GridViewAdapter(Context mContext, int layoutResourceId, ArrayList<GridItem> mGridData) {
         super(mContext, layoutResourceId, mGridData);

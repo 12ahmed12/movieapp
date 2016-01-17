@@ -108,6 +108,7 @@ public class MainActivityFragment extends Fragment {
                 intent.putExtra("overview",SelectedItem.getOverview());
                 intent.putExtra("Rdate",SelectedItem.getReleaseDate());
                 intent.putExtra("popularity",SelectedItem.getPopularity());
+                intent.putExtra("ID",SelectedItem.getId());
                 startActivity(intent);
 
             }
@@ -131,6 +132,7 @@ public class MainActivityFragment extends Fragment {
        // mProgressBar.setVisibility(View.VISIBLE);
 
     }
+
 
     @Override
     public void onResume() {
@@ -269,6 +271,7 @@ public class MainActivityFragment extends Fragment {
               final String POPULATRIY = "popularity";
               final String AVERAGE = "vote_average";
               final String RELEASE_DATE="release_date";
+              final String ID="id";
 
 
               JSONObject JsonObj = new JSONObject(MovieJasonStr);
@@ -287,13 +290,15 @@ public class MainActivityFragment extends Fragment {
                   String average=dataObj.getString(AVERAGE);
                   String date=dataObj.getString(RELEASE_DATE);
                   String Img = dataObj.getString(IMGPATH);
+                  String id=dataObj.getString(ID);
 
                   item.setTitle(title);
-                  item.setImage("http://image.tmdb.org/t/p/w500" + Img);
+                  item.setImage("http://image.tmdb.org/t/p/w185" + Img);
                   item.setOverview(OverView);
                   item.setPopularity(Popularity);
                   item.setReleaseDate(date);
                   item.setAverage(average);
+                  item.setId(id);
                   mGridData.add(item);
 
               }

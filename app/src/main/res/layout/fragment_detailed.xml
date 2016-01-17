@@ -1,4 +1,6 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,72 +8,18 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:layout_gravity="left"
+
     tools:context="movieapp.android.come.movieapp.DetailedActivityFragment">
 
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/list_details">
+            </ListView>
 
-    <TextView
-        android:layout_width="300dp"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text=""
-        android:id="@+id/DetailedTitle"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-    <ImageView
-
-        android:layout_width="200dp"
-        android:layout_height="300dp"
-        android:id="@+id/DetailedImage"
-        android:scaleType="fitStart"
-        android:adjustViewBounds="true"
-        android:maxHeight="300dp"
-        android:background="@drawable/simple_1"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/DetailedTitle"
-         />
+    </LinearLayout>
 
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="dsds"
-        android:layout_marginTop="42dp"
-        android:id="@+id/DetailedPoularity"
-        android:layout_alignTop="@+id/DetailedImage"
-        android:layout_alignRight="@+id/DetailedTitle"
-        android:layout_alignEnd="@+id/DetailedTitle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="dsd"
-        android:layout_toRightOf="@+id/DetailedImage"
-        android:layout_marginLeft="2dp"
-        android:id="@+id/ReleaseDate"
-        android:layout_below="@+id/DetailedPoularity"
-        android:layout_alignTop="@+id/DetailedImage"
-        android:layout_alignRight="@+id/DetailedTitle"
-        android:layout_marginTop="100dp"
-        />
-
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text=""
-        android:gravity="center"
-        android:id="@+id/DetailedOverview"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/DetailedImage"
-        android:scrollbars="horizontal"
-        android:layout_marginBottom="10dp"
-
-        />
-
-</RelativeLayout>
