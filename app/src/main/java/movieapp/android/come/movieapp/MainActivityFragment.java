@@ -124,6 +124,7 @@ public class MainActivityFragment extends Fragment {
     {
         FetchMovies MoviesTask= new FetchMovies();
 
+
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort=prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_avarege));

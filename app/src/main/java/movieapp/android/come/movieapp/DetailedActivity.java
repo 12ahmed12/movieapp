@@ -78,9 +78,15 @@ public class DetailedActivity extends AppCompatActivity {
      */
     public static class DetailedFragment extends Fragment {
 
+        private detailsAdapter mDetailAdapter;
+        private ArrayList<reviewModel> mReviewData;
+        private ArrayList<trailerModel> mTrailerData;
+        private ListView detailsList;
+
+
         private ArrayList<String> trailersData;
         private ArrayAdapter adperTrailer;
-        private ListView detailsList;
+
         private String T_id="";
 
         private ArrayList<String> reviewsData;
@@ -127,6 +133,9 @@ public class DetailedActivity extends AppCompatActivity {
 
             View rootView = inflater.inflate(R.layout.fragment_detailed, container, false);
             int layoutId = -1;
+            mReviewData = new ArrayList<>();
+            mTrailerData = new ArrayList<>();
+            detailsList = (ListView)rootView. findViewById(R.id.list_details);
 
 
             View header = inflater.inflate(R.layout.details_header, null, false);
@@ -138,11 +147,10 @@ public class DetailedActivity extends AppCompatActivity {
             TextView ReleaseDate= (TextView) header.findViewById(R.id.ReleaseDate);
             TextView OverView= (TextView) header.findViewById(R.id.DetailedOverview);
 
-            detailsList = (ListView)rootView. findViewById(R.id.list_details);
 
-            trailersData = new ArrayList<>();
 
-            reviewsData=new ArrayList<>();
+
+
 
             Intent intent=getActivity().getIntent();
             if(intent!=null)
@@ -169,6 +177,8 @@ public class DetailedActivity extends AppCompatActivity {
                     detailsList.addHeaderView(header, null, false);
                 }
             }
+            new fetchTrailers().execute(T_id);
+            new fetchReviews().execute(T_id);
 
             return rootView;
         }
@@ -188,8 +198,6 @@ public class DetailedActivity extends AppCompatActivity {
         @Override
         public void onStart() {
             super.onStart();
-            //new fetchTrailers().execute(T_id);
-            //new fetchReviews().execute(T_id);
 
         }
 
@@ -203,6 +211,8 @@ public class DetailedActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+
+
             }
 
             @Override
@@ -302,21 +312,29 @@ public class DetailedActivity extends AppCompatActivity {
                     final String ID="id";
 
 
+
+
+
                     JSONObject JsonObj = new JSONObject(MovieJasonStr);
                     JSONArray MoviesArray = JsonObj.getJSONArray(LIST);
-                    GridItem item;
+                    trailerModel item;
                     String ImgExtra ;
 
 
                     for (int i = 0; i < MoviesArray.length(); i++) {
-                        item = new GridItem();
+                        item = new trailerModel();
                         JSONObject dataObj = MoviesArray.getJSONObject(i);
 
                         String key = dataObj.getString(KEY);
                         String trailer_name = dataObj.getString(NAME);
                         String id=dataObj.getString(ID);
 
-                        trailersData.add(trailer_name);
+
+                        item.setId(id);
+                        item.setKey(key);
+                        item.setType("trailer");
+                        item.setName(trailer_name);
+                        mTrailerData.add(item);
 
                     }
                 }catch (JSONException  e)
@@ -336,11 +354,12 @@ public class DetailedActivity extends AppCompatActivity {
                 // Download complete. Lets update UI
 
                 if (result == 1) {
+
                     //prgDialog.cancel();
-                    for (String trailerDataString: trailersData){
-                        Log.i("trailer = ",trailerDataString);
-                        adperTrailer.add(trailerDataString);
-                    }
+                   // mDetailAdapter = new detailsAdapter(getActivity(),0, mDetailData);
+                   // detailsList.setAdapter(mDetailAdapter);
+                    //mDetailData.clear();
+                    //mDetailAdapter.setGridData(mDetailData);
 
                 } else {
                     Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
@@ -366,6 +385,7 @@ public class DetailedActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+
             }
 
             @Override
@@ -467,19 +487,22 @@ public class DetailedActivity extends AppCompatActivity {
 
                     JSONObject JsonObj = new JSONObject(MovieJasonStr);
                     JSONArray MoviesArray = JsonObj.getJSONArray(LIST);
-                    GridItem item;
+                    reviewModel item;
                     String ImgExtra ;
 
 
                     for (int i = 0; i < MoviesArray.length(); i++) {
-                        item = new GridItem();
+                        item = new reviewModel();
                         JSONObject dataObj = MoviesArray.getJSONObject(i);
 
                         String author = dataObj.getString(AUTHOR);
                         String content = dataObj.getString(CONTENT);
                         String id=dataObj.getString(ID);
 
-                        reviewsData.add(content);
+                        item.setContent(content);
+                        item.setAuthor(author);
+                        item.setType("reveiw");
+                        mReviewData.add(item);
 
                     }
                 }catch (JSONException  e)
@@ -499,11 +522,26 @@ public class DetailedActivity extends AppCompatActivity {
                 // Download complete. Lets update UI
 
                 if (result == 1) {
-                    //prgDialog.cancel();
-                    for (String reviewerDataString: reviewsData){
-                        Log.i("reviews = ",reviewerDataString);
-                        adapterReviews.add(reviewerDataString);
+                    for (trailerModel obj:mTrailerData) {
+
+                        Log.i("Object data name   ",obj.getName()+" object key   "+obj.getKey());
+
+
                     }
+
+                    for (reviewModel obj:mReviewData) {
+
+                        Log.i("Review author name   ",obj.getAuthor());
+
+
+                    }
+
+                    if(mDetailAdapter ==null) {
+                        detailsList.setAdapter(new detailsAdapter(getActivity(), mTrailerData, mReviewData));
+                    }
+                    // mDetailData.clear();
+                    //prgDialog.cancel();
+                    //mDetailAdapter.setGridData(mDetailData);
 
                 } else {
                     Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
