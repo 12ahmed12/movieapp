@@ -28,7 +28,10 @@ public class GridViewAdapter extends ArrayAdapter<GridItem> {
         this.mGridData = mGridData;
     }
 
-
+    public void ClrData()
+    {
+        this.mGridData.clear();
+    }
     /**
      * Updates grid data and refresh grid items.
      *

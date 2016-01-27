@@ -4,6 +4,7 @@
     <string name="item_text">Details</string>
     <string name="title_activity_detailed">DetailedActivity</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_favorit">show Favorit Movie</string>
     <string name="action_share">Share</string>
     <string name="title_activity_setting">SettingActivity</string>
 

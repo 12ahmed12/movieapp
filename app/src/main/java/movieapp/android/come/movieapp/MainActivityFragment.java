@@ -1,12 +1,12 @@
 package movieapp.android.come.movieapp;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -36,13 +37,17 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
-    GridView grid;
 
+
+public class MainActivityFragment extends Fragment  {
+    GridView grid;
+    public static  boolean towwplay=false;
+      int counter=0;
+    private int mPosition = ListView.INVALID_POSITION;
     private GridView mGridView;
     private ProgressBar mProgressBar;
     private ProgressDialog prgDialog;
-
+    private boolean mUseTodayLayout;
 
     private GridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
@@ -51,6 +56,7 @@ public class MainActivityFragment extends Fragment {
    {
 
    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,10 +83,12 @@ public class MainActivityFragment extends Fragment {
             UpdateMovie();
 
             return true;
+        }else if(id==R.id.action_favorit)
+        {
+            FavoritMovie();
+
         }
         return super.onOptionsItemSelected(item);
-
-
     }
 
     @Override
@@ -99,18 +107,28 @@ public class MainActivityFragment extends Fragment {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                GridItem item= (GridItem) parent.getItemAtPosition(position);
-                GridItem SelectedItem=mGridAdapter.getItem(position);
-                Intent intent=new Intent(getActivity(),DetailedActivity.class);
+                GridItem item = (GridItem) parent.getItemAtPosition(position);
+                GridItem SelectedItem = mGridAdapter.getItem(position);
+                Bundle args=new Bundle();
+                args.putString("title", SelectedItem.getTitle());
+                args.putString("img", SelectedItem.getImage());
+                args.putString("overview", SelectedItem.getOverview());
+                args.putString("Rdate", SelectedItem.getReleaseDate());
+                args.putString("popularity", SelectedItem.getPopularity());
+                args.putString("ID", SelectedItem.getId());
+                DetailedFragment d=new DetailedFragment();
+                d.setArguments(args);
+                if(towwplay)
+                {
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.Movie_detail_container, d, "sssd")
+                            .commit();
+                }else {
 
-                intent.putExtra("title",SelectedItem.getTitle() );
-                intent.putExtra("img",SelectedItem.getImage());
-                intent.putExtra("overview",SelectedItem.getOverview());
-                intent.putExtra("Rdate",SelectedItem.getReleaseDate());
-                intent.putExtra("popularity",SelectedItem.getPopularity());
-                intent.putExtra("ID",SelectedItem.getId());
-                startActivity(intent);
-
+                    Intent intent = new Intent(getActivity(), DetailedActivity.class);
+                    intent.putExtras(args);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -120,33 +138,54 @@ public class MainActivityFragment extends Fragment {
     }
 
 
+
+
+
     public void UpdateMovie()
     {
+        mGridData.clear();
+        mGridAdapter.clear();
         FetchMovies MoviesTask= new FetchMovies();
-
-
-        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sort=prefs.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_avarege));
+        String sort = Utility.getPreferredSort(getActivity());
         MoviesTask.execute(sort);
-        prgDialog.cancel();
+        //prgDialog.cancel();
        // mProgressBar.setVisibility(View.VISIBLE);
+        Log.i("Preferace value : ", sort);
+    }
+
+
+    public void FavoritMovie()
+    {
+        mGridData.clear();
+        mGridAdapter.clear();
+
+        SharedPreferences pref =this.getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String ExistIDs=pref.getString("MoviesID", "125258;");
+        String[] Result=ExistIDs.split(";");
+
+        for (String arr:Result) {
+            new FetchFavoritMovies().execute(arr);
+            Log.i("THE ID value TO FIRCH: ", arr);
+        }
 
     }
 
+    void onLocationChanged( ) {
+        UpdateMovie();
+    }
 
     @Override
     public void onResume() {
         super.onResume();
         UpdateMovie();
+
     }
 
     @Override
     public void onStart() {
 
         super.onStart();
-
-        UpdateMovie();
+       // UpdateMovie();
 
     }
 
@@ -160,9 +199,8 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-
-            prgDialog.setMessage("Loading....");
-            prgDialog.show();
+           // prgDialog.setMessage("Loading....");
+            //prgDialog.show();
 
 
             super.onPreExecute();
@@ -280,6 +318,7 @@ public class MainActivityFragment extends Fragment {
               GridItem item;
               String ImgExtra ;
 
+             mGridData.clear();
 
               for (int i = 0; i < MoviesArray.length(); i++) {
                   item = new GridItem();
@@ -320,19 +359,210 @@ public class MainActivityFragment extends Fragment {
                 // Download complete. Lets update UI
 
                 if (result == 1) {
-                    //prgDialog.cancel();
-                    mGridAdapter.setGridData(mGridData);
+                   // mGridAdapter.ClrData();
+                    mGridAdapter = new GridViewAdapter(getActivity(), R.layout.gridview_item, mGridData);
+                    mGridView.setAdapter(mGridAdapter);
                 } else {
                     Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
                 }
 
-                //Hide progressbar
-                //mProgressBar.setVisibility(View.GONE);
+            }
+
+
+
+
+
+        }
+
+    //classe for athynic task fr handle reterive data
+    public class FetchFavoritMovies extends AsyncTask<String,Void,Integer>
+    {
+        Integer result =0;
+        private final String LOG_TAG=MainActivityFragment.class.getSimpleName();
+
+        @Override
+        protected void onPreExecute() {
+            //mGridData = new ArrayList<>();
+            int counter=1;
+            //prgDialog.setMessage("Loading....");
+          //  prgDialog.show();
+
+
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Integer doInBackground(String... params) {
+
+
+            HttpURLConnection urlConnection=null;
+            BufferedReader reader=null;
+            String MovieJasonStr=null;
+
+
+
+
+            try
+            {
+                final String API_KEY="api_key";
+                String api_key="f1d1772fa7a2e66b446efb99a1512dcc";
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("https")
+                        .authority("api.themoviedb.org")
+                        .appendPath("3")
+                        .appendPath("movie")
+                        .appendPath(params[0])
+                        .appendQueryParameter(API_KEY, api_key).build();
+
+                URL url=new URL(builder.toString());
+                Log.v(LOG_TAG,"BUILD URL"+builder.toString());
+
+
+                urlConnection= (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                //read input string into string
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer=new StringBuffer();
+                if(inputStream==null)
+                {
+                    return null;
+
+                }
+
+                reader =new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+
+                while ((line=reader.readLine())!=null)
+                {
+                    buffer.append(line+"\n");
+                }
+
+                if(buffer.length()==0)
+                {
+                    //Stream empty
+                    return null;
+                }
+
+                MovieJasonStr=buffer.toString();
+                GetMoviesDataFromJson(MovieJasonStr);
+                result=1;
+                // Log.v(LOG_TAG,"Movies String "+MovieJasonStr);
+            }catch(Exception e)
+            {
+                Log.e(LOG_TAG,"Error"+e);
+            }finally {
+                if(urlConnection!=null)
+                {
+                    urlConnection.disconnect();
+                }
+
+                if(reader!=null)
+                {
+                    try{
+                        reader.close();
+                    }catch (final IOException IO)
+                    {
+
+                        Log.e(LOG_TAG,"error Closing Stream"+IO);
+                    }
+                }
+            }
+
+
+            return result;
+        }
+
+
+        private void GetMoviesDataFromJson(String MovieJasonStr)
+                throws JSONException
+
+        {
+            try {
+                // These are the names of the JSON objects that need to be extracted.
+                final String LIST = "results";
+                final String IMGPATH = "poster_path";
+                final String OVERVIEW = "overview";
+                final String TITLE = "title";
+                final String POPULATRIY = "popularity";
+                final String AVERAGE = "vote_average";
+                final String RELEASE_DATE="release_date";
+                final String ID="id";
+
+
+                JSONObject JsonObj = new JSONObject(MovieJasonStr);
+                GridItem item;
+                // mGridData.clear();
+                // mGridAdapter.clear();
+
+                item = new GridItem();
+                String title = JsonObj.getString(TITLE);
+                String OverView = JsonObj.getString(OVERVIEW);
+                String Popularity = JsonObj.getString(POPULATRIY);
+                String average=JsonObj.getString(AVERAGE);
+                String date=JsonObj.getString(RELEASE_DATE);
+                String Img = JsonObj.getString(IMGPATH);
+                String id=JsonObj.getString(ID);
+
+                item.setTitle(title);
+                item.setImage("http://image.tmdb.org/t/p/w185" + Img);
+                item.setOverview(OverView);
+                item.setPopularity(Popularity);
+                item.setReleaseDate(date);
+                item.setAverage(average);
+                item.setId(id);
+                mGridData.add(item);
+
+            }catch (JSONException  e)
+            {
+                e.printStackTrace();
             }
 
 
 
         }
+
+
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+            // Download complete. Lets update UI
+
+
+            if (result == 1) {
+                counter++;
+                String v=counter+"";
+                Log.i("count number oeration:",v);
+                SharedPreferences pref =getContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                String ExistIDs=pref.getString("MoviesID", "125258;");
+                String[] Result=ExistIDs.split(";");
+
+                if(counter==Result.length)
+                {
+                      mGridAdapter = new GridViewAdapter(getActivity(), R.layout.gridview_item, mGridData);
+                      mGridView.setAdapter(mGridAdapter);
+                      mGridAdapter.setGridData(mGridData);
+                      counter=0;
+                      //prgDialog.cancel();
+
+                }
+
+            } else {
+                Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+
+
+    }
+
+
+
 
 
 

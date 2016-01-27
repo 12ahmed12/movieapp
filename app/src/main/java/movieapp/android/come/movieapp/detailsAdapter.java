@@ -2,8 +2,10 @@ package movieapp.android.come.movieapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class detailsAdapter extends BaseAdapter {
-
+    private final int ORANGE = 0xFFFF3300;
     //private final ColorMatrixColorFilter grayscaleFilter;
     private Context mContext;
     private int layoutResourceId;
@@ -79,7 +81,6 @@ public class detailsAdapter extends BaseAdapter {
 
         // TODO: Determine layoutId from viewType
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                if (v == null) {
                     if (getType(position) == "trailer") {
                         final trailerModel item = mTrailerModel.get(position);
                         v = inflater.inflate(R.layout.trailer_item, parent, false);
@@ -90,16 +91,19 @@ public class detailsAdapter extends BaseAdapter {
                         lin.setOrientation(LinearLayout.HORIZONTAL);
 
                         //       trailerModel trailerObj:mTrailerModel
-                        TextView trailerTextView = new TextView(mContext);
                         ImageView trailerImage = new ImageView(mContext);
+                        TextView trailerTextView = new TextView(mContext);
+                       // trailerTextView.setTextColor(15);
+                        trailerTextView.setTextColor(Color.RED);
                         trailerImage.setImageResource(R.drawable.mpic);
                         trailerImage.setLayoutParams(new LinearLayout.LayoutParams(100, 100));
                         String name = item.getName();
                         final String key = item.getKey();
                         trailerTextView.setText(name);
                         Log.i("nameee of object ", name);
-                        lin.addView(trailerTextView);
                         lin.addView(trailerImage);
+
+                        lin.addView(trailerTextView);
 
                         trailer_Loayout.addView(lin);
                         lin.setOnClickListener(new View.OnClickListener() {
@@ -117,13 +121,26 @@ public class detailsAdapter extends BaseAdapter {
                         v = inflater.inflate(R.layout.review_item, parent, false);
                         LinearLayout reviewL= (LinearLayout) v.findViewById(R.id.review_layout);
                         LinearLayout review_item_Layout=new LinearLayout(mContext);
-                        review_item_Layout.setOrientation(LinearLayout.HORIZONTAL);
+                        review_item_Layout.setOrientation(LinearLayout.VERTICAL);
 
                         //reviewModel reviewObj:mReviewModel
                         TextView authorTextView = new TextView(mContext);
+                        authorTextView.setTextSize(25);
+                        authorTextView.setGravity(Gravity.CENTER);
+                        authorTextView.setTextColor(ORANGE);
                         TextView contentTextView = new TextView(mContext);
+                        contentTextView.setTextSize(18);
                         authorTextView.setText(item2.getAuthor());
-                        contentTextView.setText(item2.getContent());
+                        String  alContent=item2.getContent();
+                        if(alContent.length()>300)
+                        {
+                            String  content=alContent.substring(0,300)+"see More ...";
+                            contentTextView.setText(content);
+                        }else
+                        {
+                            contentTextView.setText(item2.getContent());
+                        }
+
                         review_item_Layout.addView(authorTextView);
                         review_item_Layout.addView(contentTextView);
                         reviewL.addView(review_item_Layout);
@@ -132,13 +149,10 @@ public class detailsAdapter extends BaseAdapter {
 
                     }
 
-                }
+
 
                    return  v;
                 }
-
-
-
 
     static class ViewHolder {
         ImageView trailerImage;
